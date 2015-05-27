@@ -39,6 +39,19 @@ function show (req, res) {
     });
 };
 
+function searchName (req, res) {
+    morgan(':body :method :url :response-time');
+     Eid.findOne({ 'firstName': req.params.id }, function (err, eid) {
+        if (err) {
+            return handleError(res, err);
+        }
+        if (!eid) {
+            return res.send(404);
+        }
+        return res.json(eid);
+    });
+};
+
 // Creates a new eid in the DB.
  function create (req, res) {
      Eid.findOne({ 'nationalNumber': req.body.nationalNumber }, function (err, eid) {
@@ -125,3 +138,4 @@ exports.destroy = destroy;
 exports.create = create;
 exports.show = show;
 exports.index = index;
+exports.searchName = searchName;

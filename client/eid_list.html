@@ -321,6 +321,32 @@
             display: 'firstName',
             source: eids
         });
+        
+        $('#inpSearch').bind('typeahead:select', function(ev, suggestion) {
+            $.ajax({
+                   url: '/api/eids/' + suggestion._id,
+                   beforeSend:function(xhr) {
+                       if ($.cookie('token')) {
+                          xhr.setRequestHeader('Authorization', 'Bearer ' + $.cookie('token'));
+                        }
+                    } ,
+                   headers: {'Authorization': 'Bearer ' + $.cookie('token')},
+                   error: function(xhr, ajaxOptions, thrownError) {        
+                      
+                   },
+                   dataType: 'json',
+                   success: function(data) {
+                      if(data){
+                          sessionStorage.setItem('eidData', JSON.stringify(data));
+                          window.location.replace("/input");
+                      }
+                       
+                   },
+                   type: 'get'
+                });  
+          
+        });
+        
         if ($.cookie('token')) {
             $("#liLogin").html('Logout');
             $("#liLogin").on('click', function (e) {
@@ -404,7 +430,11 @@
                     {
                         "data": "_id",
                         'render': function (data, type, full, meta) {
-                            return '<button type="button" class="btn btn-default rowBtn" aria-label="Left Align" onclick="showDetail(this)" value="' + data + '"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
+                            var html =  '<div> \
+                                        <button type="button" class="btn btn-default btn-xs rowBtn" aria-label="Left Align" onclick="showDetail(this)" value="' + data + '"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button> \
+                                        <button type="button" class="btn btn-default btn-xs rowBtn" aria-label="Left Align" onclick="deleteEid(this)" value="' + data + '"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button> \
+                                        </div>';
+                            return html;
                         }
                     },
 
@@ -433,11 +463,34 @@
                 type: 'GET'
             });
         }
+        
+        function deleteEid(elmt){
+           if (confirm("are you sure you want to permanently delete this record?")){
+                $.ajax({
+                    url: '/api/eids/' + elmt.value,
+                    beforeSend: function (xhr) {
+                        if ($.cookie('token')) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + $.cookie('token'));
+                        }
+                    },
+                    error: function () {
+
+                    },
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (data) {
+                        location.reload();
+                    },
+                    type: 'DELETE'
+                });
+            }
+        }
 
         function populateForm(data) {
             $('#id').val(data._id);
             $('#firstName').val(data.firstName);
             $('#name').val(data.name);
+            $('#email').val(data.email);
             $('#middleName').val(data.middleName);
             $('#nationalNumber').val(data.nationalNumber);
             $('#dateOfBirth').val(data.dateOfBirth);
@@ -456,6 +509,7 @@
            return eidData = {
                 firstName: $('#firstName').val(),
                 name : $('#name').val(),
+                email: $('#email').val(),
                 middleName : $('#middleName').val(),
                 nationalNumber: $('#nationalNumber').val(),
                 dateOfBirth: $('#dateOfBirth').val(),

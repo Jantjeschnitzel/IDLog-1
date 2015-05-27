@@ -202,12 +202,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
                             <button type="button" id="btnReadId" class="btn btn-info btn-block">Lees E-Id</button>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <input type="button" id="btnClear" value="Clear" class="btn btn-info btn-block">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
                             <input type="submit" id="btnOpslaan" value="Gegevens opslaan" class="btn btn-info btn-block">
                         </div>
@@ -298,6 +303,31 @@
             source: eids
         });
         
+        $('#inpSearch').bind('typeahead:select', function(ev, suggestion) {
+            $.ajax({
+                   url: '/api/eids/' + suggestion._id,
+                   beforeSend:function(xhr) {
+                       if ($.cookie('token')) {
+                          xhr.setRequestHeader('Authorization', 'Bearer ' + $.cookie('token'));
+                        }
+                    } ,
+                   headers: {'Authorization': 'Bearer ' + $.cookie('token')},
+                   error: function(xhr, ajaxOptions, thrownError) {        
+                      
+                   },
+                   dataType: 'json',
+                   success: function(data) {
+                      if(data){
+                          sessionStorage.setItem('eidData', JSON.stringify(data));
+                          location.reload();
+                      }
+                       
+                   },
+                   type: 'get'
+                });  
+          
+        });
+        
         
         if($.cookie('token')){
             $("#liLogin").html('Logout');
@@ -362,6 +392,7 @@
         function populateForm(data){
             $('#firstName').val(data.firstName);
             $('#name').val(data.name);
+            $('#email').val(data.email);
             $('#middleName').val(data.middleName);
             $('#nationalNumber').val(data.nationalNumber);
             $('#dateOfBirth').val(data.dateOfBirth);
@@ -380,6 +411,7 @@
            return eidData = {
                 firstName: $('#firstName').val(),
                 name : $('#name').val(),
+                email: $('#email').val(),
                 middleName : $('#middleName').val(),
                 nationalNumber: $('#nationalNumber').val(),
                 dateOfBirth: $('#dateOfBirth').val(),
@@ -397,7 +429,11 @@
             }
         }
         
-        
+        $('#btnClear').on('click',function (){
+            sessionStorage.setItem('eidData','');
+            $('#idPhoto').attr("src", '');
+            $("#eidForm")[0].reset();
+        });
         
         
         $("#eidForm").on('submit',function(event){
@@ -420,7 +456,7 @@
                    dataType: 'json',
                    contentType: 'application/json',
                    success: function(data) {
-                      alert(data);
+                      
                    },
                    type: 'POST'
                 });
@@ -431,6 +467,8 @@
             }
         
         });
+        
+        
 
         
 

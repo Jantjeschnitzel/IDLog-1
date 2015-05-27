@@ -134,6 +134,7 @@
                         var eidData = {
                             firstName: "<%=((Identity) session.getAttribute("eid.identity")).firstName%>",
                             name: "<%=((Identity) session.getAttribute("eid.identity")).name%>",
+                            email: $('#email').val(),
                             middleName: "<%=((Identity) session.getAttribute("eid.identity")).middleName%>",
                             nationalNumber: "<%=((Identity) session.getAttribute("eid.identity")).nationalNumber%>",
                             dateOfBirth: "<%=((Identity) session.getAttribute("eid.identity")).dateOfBirth.getTime()%>",

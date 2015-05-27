@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 var EidSchema = new Schema({
     firstName: String,
     name : String,
+    email: String,
     middleName : String,
     nationalNumber: String,
     dateOfBirth: String,
